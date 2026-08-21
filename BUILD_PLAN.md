@@ -81,6 +81,7 @@ Nothing else can be built on top of an app that doesn't have a working skeleton,
 - [ ] CI pipeline (lint, test, typecheck) per `.claude/skills/deployment-devops/SKILL.md`
 - [ ] Staging environment with its own Supercell API token (never shared with production)
 - [ ] Observability on the three signals that matter most here: Supercell 403 rate, base-decode failure rate, recommendation confidence distribution
+- [ ] Resolve production 403s from Vercel's non-static outbound IP — the COC token is IP-locked (`.claude/rules/api.md` point 3) but Vercel's Hobby-tier egress IP changes per deployment, confirmed by hitting a diagnostic endpoint twice and getting two different IPs. A static-IP proxy (e.g. QuotaGuard, ~$19/mo, no free tier) is the standard fix; deferred until real usage justifies the cost — see BUILD_PLAN.md 1B's completion notes. Until resolved, account sync only reliably works against `localhost` (home IP), not production.
 
 **Gate:** a bad deploy can be rolled back in one step, and the team (even a team of one) would actually find out if the Supercell token broke or the decoder started failing silently.
 
