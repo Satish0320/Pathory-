@@ -36,11 +36,23 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+// api.md's client checklist requires respecting *and logging* rate-limit
+// headers on every response, not just reacting after a 429 already happens —
+// this is what lets ops notice quota pressure building before it trips.
+function logRateLimitHeaders(res: Response): void {
+  const remaining = res.headers.get("x-ratelimit-remaining");
+  const limit = res.headers.get("x-ratelimit-limit");
+  if (remaining !== null && limit !== null) {
+    console.log(`[coc-api] rate limit: ${remaining}/${limit} remaining`);
+  }
+}
+
 async function fetchWithBackoff(
   url: string,
   attempt = 1
 ): Promise<Response> {
   const res = await fetch(url, { headers: authHeaders() });
+  logRateLimitHeaders(res);
 
   if (res.status === 429) {
     if (attempt > MAX_RETRY_ATTEMPTS) {
@@ -68,6 +80,10 @@ async function handleResponse<T>(res: Response, tag?: string): Promise<T> {
   // out — never let a raw status code leak past this layer.
   switch (res.status) {
     case 403:
+      // Loud on purpose — an IP-locked token failing in prod (e.g. after a
+      // Vercel region change) must be obvious in logs, even though the
+      // user-facing message stays calm per error-states/SKILL.md.
+      console.error("[coc-api] 403 — token/IP mismatch, see .claude/rules/api.md point 3");
       throw new TokenIPMismatchError();
     case 404:
       throw new InvalidTagError(tag ?? "unknown");
