@@ -45,12 +45,14 @@ Nothing else can be built on top of an app that doesn't have a working skeleton,
 
 ## 1D — Recommendation engine v0
 
-- [ ] Rule-based reasoning engine per `.claude/skills/recommendation-engine/SKILL.md` — structured factors, not prose strings
-- [ ] Confidence scoring that responds honestly to how much personal attack history exists
-- [ ] Cold-start behavior (zero attacks logged) handled explicitly, not just left to produce a low number silently
-- [ ] Unit tests covering every case listed in the skill's testing section
+- [x] Rule-based reasoning engine per `.claude/skills/recommendation-engine/SKILL.md` — structured factors, not prose strings (`lib/recommendation-engine/`)
+- [x] Confidence scoring that responds honestly to how much personal attack history exists (saturates toward full weight over 10 logged attacks per strategy, capped at 0.5 during cold start)
+- [x] Cold-start behavior (zero attacks logged) handled explicitly (`Recommendation.isColdStart`, personal_history factor always present with an honest zero-weight note, never silently omitted)
+- [x] Unit tests covering every case in the skill's testing section (8 tests: deterministic, strategy selection, cold-start flagging, confidence growth, runner-up presence, weight-sum-to-1, neutral fallback with zero data)
 
-**Gate:** given a fixed account and a fixed base, the engine produces a deterministic, explainable recommendation with a confidence score that visibly reflects data volume.
+**Gate met 2026-08-21.** v0 covers 3 strategies (air/ground/hybrid) scored against troop-level readiness, CV-detected defense-type density, and personal 3-star history. Not yet wired into a route or UI -- that's 1E's "attack plan screen" step, deliberately not pulled forward here.
+
+**Known follow-up, not a blocker:** confidence and defense-density scoring both currently trust CV detections at face value, inheriting the recall gap flagged in 1C (the model misses some defense types it was trained on). Once 1C's fine-tuning follow-up lands, this module needs no changes -- it already treats `coverageGaps`-adjacent uncertainty as the CV layer's responsibility, not its own -- but the *practical* confidence a user should place in a recommendation is currently a bit better than the underlying base-defense data fully supports. Worth a note in 1E's UI copy once that screen exists.
 
 ## 1E — Attack plan screen
 
