@@ -1,8 +1,10 @@
 import { UserButton } from "@clerk/nextjs";
 import { PlayerTagForm } from "@/components/account-sync/PlayerTagForm";
+import { BaseIntakeForm } from "@/components/base-intake/BaseIntakeForm";
 
-// 1B adds account sync here. Recommendations/overlay/dashboard charts are
-// still out of scope until their own BUILD_PLAN.md steps land.
+// 1B adds account sync, 1C adds base intake, below. Recommendations/overlay/
+// dashboard charts are still out of scope until their own BUILD_PLAN.md
+// steps land.
 export default function DashboardPage() {
   return (
     <main className="flex min-h-[80vh] flex-col">
@@ -13,6 +15,9 @@ export default function DashboardPage() {
       <div className="flex flex-1 flex-col items-center gap-8 px-6 py-12">
         <div className="w-full max-w-sm">
           <PlayerTagForm />
+        </div>
+        <div className="w-full max-w-sm">
+          <BaseIntakeForm />
         </div>
       </div>
     </main>
