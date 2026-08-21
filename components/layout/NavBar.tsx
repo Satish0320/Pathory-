@@ -8,9 +8,9 @@ import type { ReactNode } from "react";
 // disabled/unavailable-state guidance.
 export function NavBar({ right }: { right: ReactNode }) {
   return (
-    <header className="sticky top-0 z-10 border-b border-white/10 bg-background-base/80 backdrop-blur-md">
-      <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
-        <span className="font-display text-lg font-semibold tracking-tight text-text-primary">
+    <header className="sticky top-0 z-10 border-b border-white/10 bg-background-base">
+      <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-5">
+        <span className="font-display text-lg font-medium tracking-tight text-text-primary">
           Path<span className="text-accent-primary">ory</span>
         </span>
         {right}

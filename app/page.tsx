@@ -40,7 +40,7 @@ export default async function HomePage() {
     <div className="flex min-h-screen flex-col">
       <NavBar
         right={
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-6">
             <Link
               href="/sign-in"
               className="text-sm font-medium text-text-secondary transition hover:text-text-primary"
@@ -49,7 +49,7 @@ export default async function HomePage() {
             </Link>
             <Link
               href="/sign-up"
-              className="rounded-md bg-accent-primary px-4 py-2 text-sm font-semibold text-background-base transition hover:bg-accent-primaryHover"
+              className="rounded-full bg-text-primary px-5 py-2.5 text-sm font-semibold text-background-base transition hover:bg-accent-primary"
             >
               Get started
             </Link>
@@ -57,73 +57,61 @@ export default async function HomePage() {
         }
       />
 
-      <main className="relative flex flex-col items-center overflow-hidden px-6 py-20 text-center sm:py-28">
-        {/* Abstract gold/violet glow + grain -- no game artwork or Supercell
-            assets, per .claude/rules/legal-compliance.md; purely generated
-            gradients and an SVG noise filter for editorial depth. */}
-        <div
-          aria-hidden
-          className="pointer-events-none absolute -top-56 h-[40rem] w-[40rem] rounded-full bg-accent-primary/25 blur-[140px]"
-        />
-        <div
-          aria-hidden
-          className="pointer-events-none absolute -bottom-56 right-1/4 h-[36rem] w-[36rem] rounded-full bg-accentSecondary/25 blur-[140px]"
-        />
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 opacity-[0.05] mix-blend-overlay"
-          style={{
-            backgroundImage:
-              "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")",
-          }}
-        />
-        {/* Vignette so the hero reads darker/deeper at the edges */}
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_35%,rgba(0,0,0,0.55)_100%)]"
-        />
+      <main className="flex flex-col items-center px-6 pb-24 pt-20 text-center sm:pt-28">
+        <span className="text-xs font-medium uppercase tracking-[0.2em] text-text-secondary">
+          AI coaching for Clash of Clans
+        </span>
 
-        <div className="relative flex max-w-2xl flex-col items-center gap-7">
-          <span className="rounded-full border border-accent-primary/30 bg-accent-primary/10 px-4 py-1.5 text-xs font-medium uppercase tracking-widest text-accent-primary">
-            AI coaching for Clash of Clans
-          </span>
-          <h1 className="font-display text-4xl font-bold leading-[1.05] tracking-tight text-text-primary sm:text-6xl sm:leading-[0.95] md:text-7xl">
-            Know your attack before you throw it.
-          </h1>
-          <p className="max-w-md text-base text-text-secondary sm:text-lg">
-            Sync your account, read a base, get a strategy with the reasoning
-            behind it — not a guess.
-          </p>
-          <div className="flex w-full flex-col gap-3 pt-3 sm:w-auto sm:flex-row sm:gap-4">
-            <Link
-              href="/sign-up"
-              className="rounded-md bg-accent-primary px-7 py-3 text-center font-semibold text-background-base transition hover:bg-accent-primaryHover"
-            >
-              Get started
-            </Link>
-            <Link
-              href="/sign-in"
-              className="rounded-md border border-white/15 px-7 py-3 text-center font-semibold text-text-primary transition hover:border-white/30 hover:bg-white/5"
-            >
-              Sign in
-            </Link>
-          </div>
+        <h1 className="mt-8 flex max-w-4xl flex-wrap items-center justify-center gap-x-5 gap-y-2 font-display text-4xl font-medium leading-[1.08] tracking-tight text-text-primary sm:text-6xl md:text-7xl">
+          <span>Know your attack</span>
+          <svg
+            aria-hidden
+            viewBox="0 0 24 24"
+            className="hidden h-8 w-8 shrink-0 fill-accent-primary sm:block sm:h-11 sm:w-11 md:h-14 md:w-14"
+          >
+            <path d="M12 2l3.5 7.5L23 12l-7.5 2.5L13 22l-2.5-7.5L3 12l7.5-2.5z" />
+          </svg>
+          <span>before you throw it</span>
+        </h1>
+
+        <p className="mt-8 max-w-lg text-base text-text-secondary sm:text-lg">
+          Sync your account, read a base, get a strategy with the reasoning
+          behind it — not a guess.
+        </p>
+
+        <div className="mt-10 flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:gap-4">
+          <Link
+            href="/sign-up"
+            className="rounded-full bg-text-primary px-8 py-3.5 text-center font-semibold text-background-base transition hover:bg-accent-primary"
+          >
+            Get started
+          </Link>
+          <Link
+            href="/sign-in"
+            className="rounded-full border border-white/15 px-8 py-3.5 text-center font-semibold text-text-primary transition hover:border-white/30"
+          >
+            Sign in
+          </Link>
         </div>
       </main>
 
-      <section className="border-t border-white/5 px-6 py-20 sm:py-28">
-        <div className="mx-auto max-w-4xl">
-          <p className="text-xs font-medium uppercase tracking-widest text-text-secondary">
-            How it works
-          </p>
-          <h2 className="mt-3 max-w-lg font-display text-3xl font-semibold tracking-tight text-text-primary sm:text-4xl">
-            One loop, sharper every time.
-          </h2>
-          <div className="mt-14 grid gap-x-10 gap-y-12 sm:grid-cols-2">
+      <section className="border-t border-white/10 px-6 py-24 sm:py-32">
+        <div className="mx-auto max-w-5xl">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-xs font-medium uppercase tracking-[0.2em] text-text-secondary">
+                How it works
+              </p>
+              <h2 className="mt-4 max-w-lg font-display text-3xl font-medium tracking-tight text-text-primary sm:text-4xl">
+                One loop, sharper every time.
+              </h2>
+            </div>
+          </div>
+          <div className="mt-16 grid gap-x-12 gap-y-14 sm:grid-cols-2">
             {CAPABILITIES.map((c) => (
-              <div key={c.number} className="flex flex-col gap-3">
-                <span className="font-display text-sm text-accent-primary">{c.number}</span>
-                <h3 className="font-display text-xl text-text-primary">{c.title}</h3>
+              <div key={c.number} className="flex flex-col gap-3 border-t border-white/10 pt-6">
+                <span className="font-display text-sm text-text-secondary">{c.number}</span>
+                <h3 className="font-display text-xl font-medium text-text-primary">{c.title}</h3>
                 <p className="text-sm leading-relaxed text-text-secondary">{c.detail}</p>
               </div>
             ))}
