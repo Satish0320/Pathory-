@@ -13,7 +13,7 @@ export function Card({
 }) {
   return (
     <div
-      className={`rounded-2xl border border-white/10 bg-background-surfaceRaised p-6 ${className}`}
+      className={`rounded-2xl border border-white/10 bg-background-surfaceRaised p-5 ${className}`}
     >
       {children}
     </div>

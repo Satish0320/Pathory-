@@ -35,6 +35,60 @@ async function syncTag(tag: string): Promise<SyncResult> {
   }
 }
 
+// First-sync form: always visible when no account is linked yet, not
+// hidden behind a toggle. A brand-new user landing here right after
+// sign-up needs an obvious next action, not a small "+" pill to notice --
+// that gap read as "nothing happens after login" in practice.
+function FirstSyncForm({ onAdd }: { onAdd: (tag: string) => Promise<UserFacingError | null> }) {
+  const [tag, setTag] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<UserFacingError | null>(null);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setSubmitting(true);
+    setError(null);
+    const result = await onAdd(tag.trim());
+    setSubmitting(false);
+    if (result) setError(result);
+  }
+
+  return (
+    <Card className="flex flex-col items-center gap-4 py-10 text-center">
+      <div>
+        <p className="font-display text-lg text-text-primary">Sync your account</p>
+        <p className="mt-1 text-sm text-text-secondary">
+          Enter your player tag to pull your account into Pathory.
+        </p>
+      </div>
+      <form onSubmit={handleSubmit} className="flex w-full max-w-xs flex-col gap-3">
+        <input
+          type="text"
+          value={tag}
+          onChange={(e) => setTag(e.target.value)}
+          placeholder="#ABC123"
+          className="rounded-md border border-white/10 bg-background-surface px-3 py-2 text-center text-text-primary placeholder:text-text-disabled focus:border-accent-primary focus:outline-none"
+        />
+        <button
+          type="submit"
+          disabled={submitting || tag.trim().length < 3}
+          className="flex items-center justify-center gap-2 rounded-md bg-accent-primary px-4 py-2 font-medium text-background-base transition hover:bg-accent-primaryHover disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          {submitting && <Spinner className="h-4 w-4" />}
+          {submitting ? "Syncing…" : "Sync account"}
+        </button>
+      </form>
+      {error && (
+        <div className="w-full max-w-xs rounded-md border border-semantic-errorSystem/40 bg-background-surface p-3 text-left text-sm">
+          <p className="text-text-primary">{error.what}</p>
+          <p className="mt-1 text-text-secondary">{error.why}</p>
+          <p className="mt-1 text-accent-primary">{error.action}</p>
+        </div>
+      )}
+    </Card>
+  );
+}
+
 // Orchestrates the account switcher + synced profile per the user-provided
 // wireframe: a top bar of account chips, and the active account's full
 // profile below. Switching re-syncs that account (fresh data on every
@@ -109,8 +163,20 @@ export function AccountSection() {
     return null;
   }, []);
 
+  if (status === "loadingList") {
+    return (
+      <Card className="flex items-center justify-center py-12">
+        <Spinner className="h-5 w-5 text-text-secondary" />
+      </Card>
+    );
+  }
+
+  if (status === "empty") {
+    return <FirstSyncForm onAdd={handleAdd} />;
+  }
+
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-4">
       <AccountSwitcher
         players={players}
         activePlayerId={activePlayerId}
@@ -118,21 +184,6 @@ export function AccountSection() {
         onAdd={handleAdd}
         switching={status === "syncing"}
       />
-
-      {status === "loadingList" && (
-        <Card className="flex items-center justify-center py-12">
-          <Spinner className="h-5 w-5 text-text-secondary" />
-        </Card>
-      )}
-
-      {status === "empty" && (
-        <Card className="flex flex-col items-center gap-1 py-12 text-center">
-          <p className="text-text-primary">No account synced yet.</p>
-          <p className="text-sm text-text-secondary">
-            Use &quot;Add account&quot; above with your player tag to get started.
-          </p>
-        </Card>
-      )}
 
       {status === "syncing" && !profile && (
         <Card className="flex items-center justify-center py-12">
