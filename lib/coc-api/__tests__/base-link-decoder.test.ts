@@ -1,5 +1,23 @@
+import { readdirSync, readFileSync } from "node:fs";
+import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { decodeBaseLink } from "../base-link-decoder";
+
+const FIXTURES_DIR = path.resolve(__dirname, "../../../fixtures/base-links");
+
+interface BaseLinkFixture {
+  townHall: number;
+  copyLink: string;
+  expectedBaseType: "warBase" | "homeVillage";
+  expectedLayoutSlot: number;
+  notes: string;
+}
+
+function loadFixtures(): BaseLinkFixture[] {
+  return readdirSync(FIXTURES_DIR)
+    .filter((f) => f.endsWith(".json"))
+    .map((f) => JSON.parse(readFileSync(path.join(FIXTURES_DIR, f), "utf-8")));
+}
 
 // The TH14/WB link below is a real, publicly shared copy-link (a war base
 // listing from a public layout site, not one Pathory controls) used only to
@@ -14,6 +32,26 @@ const REAL_TH14_WB_URL =
 // Synthetic payload (bytes[4:8] = 1, rest zero/filler) constructed to match
 // the confirmed format — not a real base, just valid-shaped test input.
 const SYNTHETIC_TH9_HV_ID = "TH9:HV:AAAAAAAAAAEAAKsAAAAAAAAAAAAAAAAA";
+
+describe("decodeBaseLink against project-owned fixtures", () => {
+  const fixtures = loadFixtures();
+
+  it("has at least one project-owned fixture", () => {
+    expect(fixtures.length).toBeGreaterThan(0);
+  });
+
+  it.each(fixtures)(
+    "decodes the TH$townHall fixture correctly",
+    (fixture: BaseLinkFixture) => {
+      const result = decodeBaseLink(fixture.copyLink);
+      expect(result).toEqual({
+        townHallLevel: fixture.townHall,
+        baseType: fixture.expectedBaseType,
+        layoutSlot: fixture.expectedLayoutSlot,
+      });
+    }
+  );
+});
 
 describe("decodeBaseLink", () => {
   it("decodes a real TH14 war-base link (full URL, percent-encoded)", () => {
