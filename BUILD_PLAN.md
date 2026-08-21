@@ -10,10 +10,10 @@ Check items off as they're completed. If a step is being started out of order, s
 
 Nothing else can be built on top of an app that doesn't have a working skeleton, auth, and a real deploy path.
 
-- [ ] Next.js project scaffolded matching `package.json` / `tsconfig.json`
-- [ ] Clerk wired per `.claude/skills/authentication/SKILL.md` — sign-up, sign-in, session middleware, `user.created` webhook creating the `User` row
-- [ ] `prisma/schema.prisma` migrated against a real Postgres instance
-- [ ] Empty authenticated shell deployed to Vercel (per `.claude/skills/deployment-devops/SKILL.md`'s earliest-stage guidance)
+- [x] Next.js project scaffolded matching `package.json` / `tsconfig.json`
+- [x] Clerk wired per `.claude/skills/authentication/SKILL.md` — sign-up, sign-in, session middleware, `user.created` webhook creating the `User` row
+- [x] `prisma/schema.prisma` migrated against a real Postgres instance (Neon)
+- [x] Empty authenticated shell deployed to Vercel (per `.claude/skills/deployment-devops/SKILL.md`'s earliest-stage guidance)
 
 **Gate:** a real person can sign up, sign in, and land on an empty authenticated screen — in production, not just localhost. Don't proceed to 1B until this is true; every later step assumes auth and deploy already work.
 
