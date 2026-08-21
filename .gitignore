@@ -1,0 +1,27 @@
+# Secrets & local overrides — never commit
+.env
+.env.local
+.env*.local
+CLAUDE.local.md
+.claude/settings.local.json
+
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build output
+.next/
+out/
+dist/
+build/
+
+# Prisma
+prisma/migrations/dev.db
+
+# Misc
+.DS_Store
+*.pem
+npm-debug.log*
+.vercel
+*.tsbuildinfo
