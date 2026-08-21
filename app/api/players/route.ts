@@ -53,8 +53,8 @@ export async function POST(req: Request) {
   }
 
   try {
-    const player = await syncPlayerAccount(userId, parsed.data.playerTag);
-    return NextResponse.json({ player });
+    const { player, profile } = await syncPlayerAccount(userId, parsed.data.playerTag);
+    return NextResponse.json({ player, profile });
   } catch (error) {
     if (error instanceof PlayerTagAlreadyLinkedError) {
       return NextResponse.json(

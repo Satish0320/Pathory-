@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Spinner } from "@/components/loaders/Spinner";
+import { Card } from "@/components/ui/Card";
 import type { UserFacingError } from "@/lib/errors/coc-error-messages";
 
 interface LinkCheck {
@@ -45,6 +46,29 @@ function ErrorNote({ error }: { error: UserFacingError }) {
       <p className="mt-1 text-accent-primary">{error.action}</p>
     </div>
   );
+}
+
+// Groups repeated detections by class (e.g. 6 Canons) into one scannable
+// row with a count and average confidence, rather than a flat list of
+// near-duplicate lines — the "dense table as primary interface" anti-
+// pattern .claude/skills/ui-ux-pro-max/SKILL.md warns against, even though
+// this isn't the attack-plan screen itself yet.
+function groupDetections(detections: CvDetection[]) {
+  const groups = new Map<string, { count: number; totalConfidence: number }>();
+  for (const d of detections) {
+    const existing = groups.get(d.className) ?? { count: 0, totalConfidence: 0 };
+    groups.set(d.className, {
+      count: existing.count + 1,
+      totalConfidence: existing.totalConfidence + d.confidence,
+    });
+  }
+  return Array.from(groups.entries())
+    .map(([className, { count, totalConfidence }]) => ({
+      className,
+      count,
+      avgConfidence: totalConfidence / count,
+    }))
+    .sort((a, b) => b.count - a.count);
 }
 
 // 1C's base-intake UI: link is a fast TH/type sanity check, CV is the real
@@ -91,84 +115,104 @@ export function BaseIntakeForm() {
 
   return (
     <div className="flex flex-col gap-4">
-      <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-        <label htmlFor="baseLink" className="text-sm text-text-secondary">
-          Base copy-link (optional — quick TH/type check only)
-        </label>
-        <input
-          id="baseLink"
-          type="text"
-          value={baseLink}
-          onChange={(e) => setBaseLink(e.target.value)}
-          placeholder="https://link.clashofclans.com/..."
-          className="rounded-md border border-text-disabled bg-background-surface px-3 py-2 text-text-primary placeholder:text-text-disabled focus:border-accent-primary focus:outline-none"
-        />
+      <Card>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+          <label htmlFor="baseLink" className="text-sm text-text-secondary">
+            Base copy-link <span className="text-text-disabled">(optional — quick TH/type check only)</span>
+          </label>
+          <input
+            id="baseLink"
+            type="text"
+            value={baseLink}
+            onChange={(e) => setBaseLink(e.target.value)}
+            placeholder="https://link.clashofclans.com/..."
+            className="rounded-md border border-white/10 bg-background-surface px-3 py-2 text-text-primary placeholder:text-text-disabled transition-colors focus:border-accent-primary focus:outline-none"
+          />
 
-        <label htmlFor="screenshot" className="text-sm text-text-secondary">
-          Base screenshot (primary source of building positions)
-        </label>
-        <input
-          id="screenshot"
-          type="file"
-          accept="image/jpeg,image/png"
-          onChange={(e) => setScreenshot(e.target.files?.[0] ?? null)}
-          className="text-sm text-text-secondary file:mr-3 file:rounded-md file:border-0 file:bg-background-surface file:px-3 file:py-2 file:text-text-primary"
-        />
+          <label htmlFor="screenshot" className="text-sm text-text-secondary">
+            Base screenshot <span className="text-text-disabled">(primary source of building positions)</span>
+          </label>
+          <input
+            id="screenshot"
+            type="file"
+            accept="image/jpeg,image/png"
+            onChange={(e) => setScreenshot(e.target.files?.[0] ?? null)}
+            className="text-sm text-text-secondary file:mr-3 file:rounded-md file:border-0 file:bg-background-surface file:px-3 file:py-2 file:text-text-primary file:transition-colors hover:file:bg-white/5"
+          />
 
-        <button
-          type="submit"
-          disabled={isSubmitDisabled}
-          className="flex items-center justify-center gap-2 rounded-md bg-accent-primary px-4 py-2 font-medium text-background-base transition hover:bg-accent-primaryHover disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          {state.status === "loading" && <Spinner className="h-4 w-4" />}
-          {state.status === "loading" ? "Reading base…" : "Read base"}
-        </button>
-      </form>
+          <button
+            type="submit"
+            disabled={isSubmitDisabled}
+            className="flex items-center justify-center gap-2 rounded-md bg-accent-primary px-4 py-2 font-medium text-background-base transition hover:bg-accent-primaryHover disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {state.status === "loading" && <Spinner className="h-4 w-4" />}
+            {state.status === "loading" ? "Reading base…" : "Read base"}
+          </button>
+        </form>
+      </Card>
 
       {state.status === "error" && <ErrorNote error={state.error} />}
 
       {state.status === "success" && (
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-3 motion-safe:animate-fade-in">
           {state.result.linkResult && (
-            <div className="rounded-md border border-text-disabled bg-background-surface p-3 text-sm">
+            <Card>
               {state.result.linkResult.ok ? (
-                <p className="text-text-primary">
-                  Link check: TH{state.result.linkResult.data.townHallLevel} ·{" "}
-                  {state.result.linkResult.data.baseType === "warBase" ? "War base" : "Home village"}{" "}
+                <p className="text-sm text-text-primary">
+                  <span className="font-display font-semibold">
+                    TH{state.result.linkResult.data.townHallLevel}
+                  </span>{" "}
+                  ·{" "}
+                  {state.result.linkResult.data.baseType === "warBase"
+                    ? "War base"
+                    : "Home village"}{" "}
                   · slot {state.result.linkResult.data.layoutSlot}
                 </p>
               ) : (
                 <ErrorNote error={state.result.linkResult.error} />
               )}
-            </div>
+            </Card>
           )}
 
           {state.result.cvResult &&
             (state.result.cvResult.ok ? (
-              <div className="flex flex-col gap-2 rounded-md border border-text-disabled bg-background-surface p-3 text-sm">
-                <p className="text-text-primary">
-                  {state.result.cvResult.data.detections.length} building
-                  {state.result.cvResult.data.detections.length === 1 ? "" : "s"} detected
-                </p>
+              <Card className="flex flex-col gap-3">
+                <div className="flex items-baseline justify-between">
+                  <p className="font-display text-2xl text-text-primary">
+                    {state.result.cvResult.data.detections.length}
+                  </p>
+                  <p className="text-sm text-text-secondary">buildings detected</p>
+                </div>
+
                 {state.result.cvResult.data.overallConfidence < LOW_CONFIDENCE_THRESHOLD && (
-                  <p className="text-semantic-warningRecoverable">
+                  <p className="rounded-md bg-semantic-warningRecoverable/10 px-3 py-2 text-sm text-semantic-warningRecoverable">
                     Low-confidence read — verify building positions manually.
                   </p>
                 )}
                 {state.result.cvResult.data.coverageGaps.length > 0 && (
-                  <p className="text-semantic-warningRecoverable">
+                  <p className="rounded-md bg-semantic-warningRecoverable/10 px-3 py-2 text-sm text-semantic-warningRecoverable">
                     Not detected yet: {state.result.cvResult.data.coverageGaps.join(", ")} —
                     verify these manually.
                   </p>
                 )}
-                <ul className="flex flex-col gap-1 text-text-secondary">
-                  {state.result.cvResult.data.detections.map((d, i) => (
-                    <li key={i}>
-                      {d.className} — {Math.round(d.confidence * 100)}% confidence
+
+                <ul className="flex flex-col divide-y divide-white/5">
+                  {groupDetections(state.result.cvResult.data.detections).map((g) => (
+                    <li
+                      key={g.className}
+                      className="flex items-center justify-between py-2 text-sm"
+                    >
+                      <span className="text-text-primary">
+                        {g.className}
+                        {g.count > 1 && <span className="text-text-secondary"> ×{g.count}</span>}
+                      </span>
+                      <span className="text-text-secondary">
+                        {Math.round(g.avgConfidence * 100)}%
+                      </span>
                     </li>
                   ))}
                 </ul>
-              </div>
+              </Card>
             ) : (
               <ErrorNote error={state.result.cvResult.error} />
             ))}

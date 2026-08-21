@@ -15,6 +15,7 @@ const config: Config = {
         background: tokens.color.background,
         text: tokens.color.text,
         accent: tokens.color.accent,
+        accentSecondary: tokens.color.accentSecondary,
         semantic: tokens.color.semantic,
         chart: tokens.color.chart.series.reduce(
           (acc, color, i) => ({ ...acc, [`series${i + 1}`]: color }),
@@ -37,6 +38,19 @@ const config: Config = {
       },
       transitionTimingFunction: {
         standard: tokens.motion.easing.standard,
+      },
+      keyframes: {
+        fadeIn: {
+          "0%": { opacity: "0", transform: "translateY(4px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
+      },
+      animation: {
+        // Reveal transition per .claude/skills/ui-ux-pro-max/SKILL.md's
+        // "purposeful, not decorative" motion guidance — use with the
+        // motion-safe: variant so prefers-reduced-motion users just see the
+        // content appear, per design/tokens.json's accessibility note.
+        "fade-in": `fadeIn ${tokens.motion.duration.base} ${tokens.motion.easing.standard}`,
       },
     },
   },
