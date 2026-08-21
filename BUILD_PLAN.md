@@ -28,11 +28,19 @@ Nothing else can be built on top of an app that doesn't have a working skeleton,
 
 ## 1C — Base intake
 
-- [ ] `lib/coc-api/base-link-decoder.ts` — pure function, tested against `fixtures/base-links/`
-- [ ] Screenshot CV fallback wired to Roboflow per `.claude/rules/api.md`
-- [ ] Low-confidence CV reads visibly flagged in the data shape (not just the UI later) per the same rule
+- [x] `lib/coc-api/base-link-decoder.ts` — pure function, tested against a real link plus synthetic format cases (project-controlled fixtures per `fixtures/base-links/README.md` still to be added)
+- [x] `lib/coc-api/screenshot-cv.ts` client wired to Roboflow's hosted inference API, with retry/backoff (`api-guardian`-reviewed)
+- [x] Low-confidence/coverage-gap CV reads flagged in the data shape itself (`CvBaseReading.coverageGaps`, always non-empty for v0) per `.claude/rules/error-states/SKILL.md`
 
-**Gate:** a real base copy-link decodes to structured building data; a screenshot with no link available correctly falls back to CV and the result carries a confidence/source marker.
+**Original gate no longer applies as written — corrected 2026-08-21.** Investigation found a base copy-link cannot be decoded into building positions at all (see `.claude/rules/api.md`'s dated entry), so link-decoding was never going to satisfy "decodes to structured building data." Screenshot CV is now the primary, not fallback, source of building data — but no public Roboflow model detects Traps or Walls, so CV itself isn't feature-complete yet either.
+
+**Actual state:** both clients are built and unit-tested against mocks, but **neither has been run against a real base yet.** Still needed before 1C can be called done:
+- [ ] Roboflow account created, `find-this-base/clash-of-clans-vop4y` forked into project's own workspace, `ROBOFLOW_API_KEY`/`ROBOFLOW_MODEL_ENDPOINT` set
+- [ ] `analyzeBaseScreenshot` run against a real screenshot and manually verified against the actual base
+- [ ] Real, project-controlled fixtures added to `fixtures/base-links/` per its README (currently only a real *third-party* link and synthetic strings back the decoder's tests)
+- [ ] Fine-tuning plan for Trap/Wall detection scoped as a concrete follow-up, not left implicit
+
+**New gate:** a real screenshot produces a `CvBaseReading` with detections manually verified against the actual base, and a real copy-link correctly extracts TH level/base type/slot — both confirmed against real data, not just mocks.
 
 ## 1D — Recommendation engine v0
 
