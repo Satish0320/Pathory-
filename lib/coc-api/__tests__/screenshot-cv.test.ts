@@ -56,13 +56,30 @@ describe("analyzeBaseScreenshot", () => {
     expect(result.coverageGaps.length).toBeGreaterThan(0);
   });
 
-  it("throws when the Roboflow request fails", async () => {
+  it("throws immediately on a non-retryable failure (bad request)", async () => {
     server.use(
       http.post("https://detect.roboflow.com/clash-of-clans-vop4y/5", () =>
-        new HttpResponse(null, { status: 500 })
+        new HttpResponse(null, { status: 400 })
       )
     );
 
     await expect(analyzeBaseScreenshot("base64imagedata")).rejects.toThrow();
+  });
+
+  it("retries on a 5xx and eventually succeeds", async () => {
+    let attempts = 0;
+    server.use(
+      http.post("https://detect.roboflow.com/clash-of-clans-vop4y/5", () => {
+        attempts += 1;
+        if (attempts < 2) {
+          return new HttpResponse(null, { status: 503 });
+        }
+        return HttpResponse.json({ predictions: [] });
+      })
+    );
+
+    const result = await analyzeBaseScreenshot("base64imagedata");
+    expect(attempts).toBe(2);
+    expect(result.detections).toHaveLength(0);
   });
 });

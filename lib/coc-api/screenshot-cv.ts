@@ -59,6 +59,36 @@ function averageConfidence(predictions: RoboflowPrediction[]): number {
   return sum / predictions.length;
 }
 
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+const MAX_RETRY_ATTEMPTS = 3;
+
+// Now that CV is the primary base-intake path (not a fallback — see
+// .claude/rules/api.md's 2026-08-21 correction), a transient Roboflow 429/5xx
+// deserves the same backoff treatment lib/coc-api/client.ts gives Supercell,
+// per api-guardian's review of this module.
+async function fetchWithBackoff(
+  url: string,
+  body: string,
+  attempt = 1
+): Promise<Response> {
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body,
+  });
+
+  const isRetryable = res.status === 429 || res.status >= 500;
+  if (isRetryable && attempt <= MAX_RETRY_ATTEMPTS) {
+    await sleep(attempt * 500);
+    return fetchWithBackoff(url, body, attempt + 1);
+  }
+
+  return res;
+}
+
 // image is a base64-encoded JPEG/PNG (no data: URL prefix) — the caller
 // (the base-intake upload route, once built) owns getting the screenshot
 // into that shape.
@@ -67,11 +97,7 @@ export async function analyzeBaseScreenshot(
 ): Promise<CvBaseReading> {
   const { apiKey, modelEndpoint } = requireConfig();
 
-  const res = await fetch(`${modelEndpoint}?api_key=${apiKey}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: imageBase64,
-  });
+  const res = await fetchWithBackoff(`${modelEndpoint}?api_key=${apiKey}`, imageBase64);
 
   if (!res.ok) {
     throw new Error(`Roboflow inference request failed with status ${res.status}`);
