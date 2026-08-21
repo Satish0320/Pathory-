@@ -34,13 +34,14 @@ Nothing else can be built on top of an app that doesn't have a working skeleton,
 
 **Original gate no longer applies as written — corrected 2026-08-21.** Investigation found a base copy-link cannot be decoded into building positions at all (see `.claude/rules/api.md`'s dated entry), so link-decoding was never going to satisfy "decodes to structured building data." Screenshot CV is now the primary, not fallback, source of building data — but no public Roboflow model detects Traps or Walls, so CV itself isn't feature-complete yet either.
 
-**Actual state:** both clients are built and unit-tested against mocks, but **neither has been run against a real base yet.** Still needed before 1C can be called done:
-- [ ] Roboflow account created, `find-this-base/clash-of-clans-vop4y` forked into project's own workspace, `ROBOFLOW_API_KEY`/`ROBOFLOW_MODEL_ENDPOINT` set
-- [ ] `analyzeBaseScreenshot` run against a real screenshot and manually verified against the actual base
-- [ ] Real, project-controlled fixtures added to `fixtures/base-links/` per its README (currently only a real *third-party* link and synthetic strings back the decoder's tests)
-- [ ] Fine-tuning plan for Trap/Wall detection scoped as a concrete follow-up, not left implicit
+**New gate met 2026-08-21:**
+- [x] Roboflow account created, `find-this-base/clash-of-clans-vop4y` forked into project's own workspace (`sk-yt/clash-of-clans-vop4y-5unpt`), trained (RF-DETR Small, mAP@50 99.3%, precision 98.9% on the validation split), `ROBOFLOW_API_KEY`/`ROBOFLOW_MODEL_ENDPOINT` set
+- [x] `analyzeBaseScreenshot` run through the full `/api/base-intake` route + dashboard UI against a real TH16 screenshot — 25 buildings detected across 7 classes, correctly rendered with confidence % and the traps/walls coverage-gap warning
+- [x] Real, project-controlled fixture added: `fixtures/base-links/th16.json`, decoder verified against it (11 tests)
+- [ ] Fine-tuning plan for Trap/Wall detection — still a concrete follow-up, not yet scoped
+- [ ] **New finding, not yet actioned:** the real-screenshot test showed the model misses several defense types it *was* trained on (X-Bow, Eagle Artillery, Scattershot, Air Defense were visibly present but not detected) — recall gap beyond the known traps/walls gap, likely from the small 125-image training set. `coverageGaps` currently only names traps/walls; doesn't yet account for this. Worth more training images before this is trusted at face value.
 
-**New gate:** a real screenshot produces a `CvBaseReading` with detections manually verified against the actual base, and a real copy-link correctly extracts TH level/base type/slot — both confirmed against real data, not just mocks.
+1C is functionally done — real link and real screenshot both verified end-to-end — with the model-quality caveat above carried forward rather than hidden.
 
 ## 1D — Recommendation engine v0
 
