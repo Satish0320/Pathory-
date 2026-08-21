@@ -22,7 +22,7 @@ The core loop, restated because it drives every architecture decision:
 We are in **Phase 1** of the blueprint's 5-phase roadmap. Phase 1 is the entire scope right now.
 
 **In scope for Phase 1:**
-- Base intake via copy-link decoding (primary) with screenshot CV as fallback
+- Base intake via screenshot CV as the primary source of building positions, with copy-link decoding as a fast, exact TH-level/base-type sanity check (not a building-data source — see `.claude/rules/api.md`'s 2026-08-21 correction, made during BUILD_PLAN.md 1C, for why this reverses the original primary/fallback framing)
 - Player account sync via official Clash of Clans API
 - Attack recommendation engine with plain-English reasoning + confidence score
 - Visual deployment overlay on the base image

@@ -67,4 +67,6 @@ Mock the Supercell API at the HTTP layer (msw or similar), not by stubbing your 
 
 ## Base-link decoder
 
-Keep this as a pure function: `decodeBaseLink(link: string) => DecodedBase | null`. No API calls inside it, no side effects — this makes it trivially unit-testable against a fixture set of known-good links across several Town Hall levels. When Supercell ships a new building or the link format shifts (it has happened before), this is the one function that needs updating, and isolation means that update doesn't ripple through the rest of the app.
+Keep this as a pure function: `decodeBaseLink(link: string) => DecodedBaseLink | null`. No API calls inside it, no side effects — this makes it trivially unit-testable against a fixture set of known-good links across several Town Hall levels. When Supercell ships a new building or the link format shifts (it has happened before), this is the one function that needs updating, and isolation means that update doesn't ripple through the rest of the app.
+
+**Scope correction (see `.claude/rules/api.md`'s 2026-08-21 entry):** this function only recovers TH level, base type (`WB`/`HV`), and layout slot from the link string — it cannot and must not claim to extract building positions, since those aren't locally encoded in the link at all. Use it as a cheap validity/TH-match check alongside CV-derived building data, not as an alternative source of the same data.

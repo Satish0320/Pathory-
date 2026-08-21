@@ -2,6 +2,8 @@
 
 Referenced by `.claude/skills/coc-api-integration/SKILL.md` — the base-link decoder needs a fixture set of known-good copy-links to test against, since the format isn't officially documented and can shift when Supercell ships new buildings.
 
+**Scope note (2026-08-21):** investigation during `BUILD_PLAN.md` 1C found that a copy-link does not locally encode building positions — see `.claude/rules/api.md`'s correction. These fixtures only need to verify the decoder correctly extracts **Town Hall level, base type (`WB`/`HV`), and layout slot** — not building data, since the decoder never claims to produce that.
+
 ## What to add here
 
 One `.json` file per Town Hall level you're supporting at launch (start with TH11–TH17, since that's where most active war/CWL players sit), each containing:
@@ -10,7 +12,8 @@ One `.json` file per Town Hall level you're supporting at launch (start with TH1
 {
   "townHall": 14,
   "copyLink": "<a real, current copy-link for a TH14 base you control or have permission to use>",
-  "expectedBuildingCount": 0,
+  "expectedBaseType": "warBase",
+  "expectedLayoutSlot": 1,
   "notes": "where this base came from, when it was captured"
 }
 ```
