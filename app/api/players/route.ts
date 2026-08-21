@@ -4,6 +4,25 @@ import { z } from "zod";
 import { syncPlayerAccount, PlayerTagAlreadyLinkedError } from "@/lib/coc-api/player-sync";
 import { toUserFacingError } from "@/lib/errors/coc-error-messages";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { db } from "@/lib/db";
+
+// Lists every Player synced to the signed-in User -- backs the account
+// switcher in .claude/skills/authentication/SKILL.md's multi-account
+// section. Read-only DB query, no Supercell API call, so no rate limit
+// needed here (unlike POST, which does hit the shared token's budget).
+export async function GET() {
+  const { userId } = await auth();
+  if (!userId) {
+    return NextResponse.json({ error: "Not signed in." }, { status: 401 });
+  }
+
+  const players = await db.player.findMany({
+    where: { userId },
+    orderBy: [{ isPrimary: "desc" }, { createdAt: "asc" }],
+  });
+
+  return NextResponse.json({ players });
+}
 
 const syncRequestSchema = z.object({
   playerTag: z.string().min(3).max(15),

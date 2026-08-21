@@ -67,3 +67,20 @@ export function TargetIcon(props: SVGProps<SVGSVGElement>) {
     </svg>
   );
 }
+
+export function UserIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...base(props)}>
+      <circle cx="12" cy="8" r="3.5" />
+      <path d="M4.5 20c1.5-4 4.5-6 7.5-6s6 2 7.5 6" />
+    </svg>
+  );
+}
+
+export function PlusIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...base(props)}>
+      <path d="M12 5v14M5 12h14" />
+    </svg>
+  );
+}
