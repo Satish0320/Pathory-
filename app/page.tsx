@@ -3,6 +3,33 @@ import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { NavBar } from "@/components/layout/NavBar";
 
+const CAPABILITIES = [
+  {
+    number: "01",
+    title: "Sync your account",
+    detail:
+      "Pull real troop, hero, and Town Hall data straight from the Supercell API — not a form you fill in by hand.",
+  },
+  {
+    number: "02",
+    title: "Read the base",
+    detail:
+      "A screenshot gets analyzed for real defense positions; a copy-link confirms Town Hall and base type instantly.",
+  },
+  {
+    number: "03",
+    title: "Get the reasoning",
+    detail:
+      "A strategy recommendation with the actual factors behind it — troop readiness, base layout, your own history — not a black box.",
+  },
+  {
+    number: "04",
+    title: "Report back, get sharper",
+    detail:
+      "Three quick questions after every attack tune your skill profile, so the next recommendation knows more than the last.",
+  },
+] as const;
+
 export default async function HomePage() {
   const { userId } = await auth();
   if (userId) {
@@ -30,7 +57,7 @@ export default async function HomePage() {
         }
       />
 
-      <main className="relative flex flex-1 flex-col items-center justify-center overflow-hidden px-6 py-16 text-center sm:py-24">
+      <main className="relative flex flex-col items-center overflow-hidden px-6 py-20 text-center sm:py-28">
         {/* Abstract gold/violet glow + grain -- no game artwork or Supercell
             assets, per .claude/rules/legal-compliance.md; purely generated
             gradients and an SVG noise filter for editorial depth. */}
@@ -83,6 +110,26 @@ export default async function HomePage() {
           </div>
         </div>
       </main>
+
+      <section className="border-t border-white/5 px-6 py-20 sm:py-28">
+        <div className="mx-auto max-w-4xl">
+          <p className="text-xs font-medium uppercase tracking-widest text-text-secondary">
+            How it works
+          </p>
+          <h2 className="mt-3 max-w-lg font-display text-3xl font-semibold tracking-tight text-text-primary sm:text-4xl">
+            One loop, sharper every time.
+          </h2>
+          <div className="mt-14 grid gap-x-10 gap-y-12 sm:grid-cols-2">
+            {CAPABILITIES.map((c) => (
+              <div key={c.number} className="flex flex-col gap-3">
+                <span className="font-display text-sm text-accent-primary">{c.number}</span>
+                <h3 className="font-display text-xl text-text-primary">{c.title}</h3>
+                <p className="text-sm leading-relaxed text-text-secondary">{c.detail}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

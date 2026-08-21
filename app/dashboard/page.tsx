@@ -10,7 +10,7 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen">
       <NavBar right={<UserButton />} />
-      <main className="mx-auto flex w-full max-w-2xl flex-col gap-10 px-6 py-12">
+      <main className="mx-auto flex w-full max-w-4xl flex-col gap-10 px-6 py-12">
         <section className="flex flex-col gap-3">
           <h2 className="text-xs font-medium uppercase tracking-wide text-text-secondary">
             Account

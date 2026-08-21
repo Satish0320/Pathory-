@@ -40,6 +40,7 @@ const basePlayer: CocPlayer = {
   heroes: [],
   troops: [],
   spells: [],
+  achievements: [],
 };
 
 describe("getPlayer", () => {

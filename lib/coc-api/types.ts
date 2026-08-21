@@ -33,6 +33,14 @@ export interface CocPlayerClan {
   clanLevel: number;
 }
 
+export interface CocPlayerAchievement {
+  name: string;
+  stars: number;
+  value: number;
+  target: number;
+  info: string;
+}
+
 // Loot counters cap at 2,000,000,000 and stop incrementing past that — see
 // .claude/rules/api.md point 5. Any feature that sums or trends these fields
 // must account for the cap; the client itself just passes the value through.
@@ -57,4 +65,5 @@ export interface CocPlayer {
   heroes: CocPlayerHero[];
   troops: CocPlayerTroop[];
   spells: CocPlayerSpell[];
+  achievements: CocPlayerAchievement[];
 }
