@@ -10,9 +10,15 @@ import {
   SCREENSHOT_UNSUPPORTED_FORMAT,
   cvFailureToUserFacingError,
 } from "@/lib/errors/base-intake-error-messages";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 const MAX_SCREENSHOT_BYTES = 8 * 1024 * 1024;
 const SUPPORTED_IMAGE_TYPES = ["image/jpeg", "image/png"];
+
+// Tighter than the player-sync limit — screenshots hit paid Roboflow
+// inference, not just the free COC API, per the security-auditor's
+// 2026-08-21 review flagging this route's unmetered cost exposure.
+const INTAKE_RATE_LIMIT = { maxTokens: 10, refillIntervalMs: 60_000 };
 
 type FieldResult<T> = { ok: true; data: T } | { ok: false; error: UserFacingError };
 
@@ -20,6 +26,21 @@ export async function POST(req: Request) {
   const { userId } = await auth();
   if (!userId) {
     return NextResponse.json({ error: "Not signed in." }, { status: 401 });
+  }
+
+  const rateLimit = checkRateLimit(`base-intake:${userId}`, INTAKE_RATE_LIMIT);
+  if (!rateLimit.allowed) {
+    return NextResponse.json(
+      {
+        error: {
+          what: "You're reading bases too quickly.",
+          why: "This protects the shared analysis budget every user depends on.",
+          action: "Wait about a minute and try again.",
+          recoverable: true,
+        },
+      },
+      { status: 429 }
+    );
   }
 
   const formData = await req.formData();

@@ -3,15 +3,38 @@ import { auth } from "@clerk/nextjs/server";
 import { z } from "zod";
 import { syncPlayerAccount, PlayerTagAlreadyLinkedError } from "@/lib/coc-api/player-sync";
 import { toUserFacingError } from "@/lib/errors/coc-error-messages";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 const syncRequestSchema = z.object({
   playerTag: z.string().min(3).max(15),
 });
 
+// A user syncing many alt accounts is normal (see .claude/skills/
+// authentication/SKILL.md's multi-account section), so this is generous
+// enough for that — it guards against a scripted loop burning the shared,
+// IP-locked COC_API_TOKEN's rate-limit budget, not against a real person
+// adding a dozen accounts by hand.
+const SYNC_RATE_LIMIT = { maxTokens: 20, refillIntervalMs: 60_000 };
+
 export async function POST(req: Request) {
   const { userId } = await auth();
   if (!userId) {
     return NextResponse.json({ error: "Not signed in." }, { status: 401 });
+  }
+
+  const rateLimit = checkRateLimit(`player-sync:${userId}`, SYNC_RATE_LIMIT);
+  if (!rateLimit.allowed) {
+    return NextResponse.json(
+      {
+        error: {
+          what: "You're syncing accounts too quickly.",
+          why: "This protects the shared Clash of Clans API budget every user depends on.",
+          action: "Wait about a minute and try again.",
+          recoverable: true,
+        },
+      },
+      { status: 429 }
+    );
   }
 
   const parsed = syncRequestSchema.safeParse(await req.json());
