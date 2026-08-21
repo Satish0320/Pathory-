@@ -19,10 +19,10 @@ Nothing else can be built on top of an app that doesn't have a working skeleton,
 
 ## 1B — Supercell API integration
 
-- [ ] `lib/coc-api/client.ts` built per `.claude/skills/coc-api-integration/SKILL.md` (retry/backoff, caching, typed errors)
-- [ ] Account sync: player tag input → fetch → store as a `Player` row linked to the signed-in `User`
-- [ ] Integration tests per `CLAUDE.md` §7 and the skill's testing section
-- [ ] Error states for every failure mode in `.claude/skills/error-states/SKILL.md`'s Supercell table
+- [x] `lib/coc-api/client.ts` built per `.claude/skills/coc-api-integration/SKILL.md` (retry/backoff, caching, typed errors)
+- [x] Account sync: player tag input → fetch → store as a `Player` row linked to the signed-in `User`
+- [x] Integration tests per `CLAUDE.md` §7 and the skill's testing section
+- [x] Error states for every failure mode in `.claude/skills/error-states/SKILL.md`'s Supercell table
 
 **Gate:** a real player tag syncs real troop/hero/Town Hall data into the database, and the known failure modes (rate limit, IP mismatch, bad tag, maintenance window) all produce the correct designed error state, not a crash.
 
